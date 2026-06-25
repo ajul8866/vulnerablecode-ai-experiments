@@ -613,17 +613,24 @@ class CVSSVector(BaseModel):
         parsed = _parse_cvss_or_raise(vector_str)
         stripped = vector_str.strip()
         version = "4.0" if stripped.split("/", 1)[0] == "CVSS:4.0" else "3.1"
-        scores = parsed.scores()  # CVSS3 -> (base, temporal, env); CVSS4 -> (base,)
-        severities = parsed.severities()
+        # cvss 3.0 API differs between classes: base_score is an attribute on both;
+        # CVSS3 exposes severities(), CVSS4 exposes a `severity` attribute instead.
+        base_score = float(parsed.base_score)
+        if version == "4.0":
+            severity_label = str(parsed.severity).lower()
+        else:
+            severity_label = str(parsed.severities()[0]).lower()
         return cls(
             vector=stripped,
             version=version,
-            base_score=float(scores[0]),
-            severity_label=str(severities[0]).lower(),
+            base_score=base_score,
+            severity_label=severity_label,
         )
 ```
 
 > **Note on `UnsupportedCVSSVersionError` inside a pydantic validator:** it is a `VulnerabilityAgentError` (subclass of `Exception`, not `ValueError`), so pydantic will NOT wrap it into `ValidationError` — it propagates as-is. That is the intended behavior for v2 vectors: callers get a typed `UnsupportedCVSSVersionError` rather than a generic validation error. Only the "malformed metric" path is converted to `ValueError` (→ `ValidationError`), which is what drives self-correction.
+
+> **cvss 3.0 API note (verified):** `base_score` is an attribute (Decimal on `CVSS3`, float on `CVSS4`) on both classes — use `float(parsed.base_score)`. Severity access differs: `CVSS3.severities()[0]` vs `CVSS4.severity` (attribute). `CVSS4` has NO `scores()`/`severities()` methods. `clean_vector()` exists on both.
 
 - [ ] **Step 4: Run test, verify it passes**
 
