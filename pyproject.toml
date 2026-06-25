@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+markers = [
+    "live: tests that call a real LLM (excluded by default; run with -m live)",
+]
+addopts = "-m 'not live'"
+testpaths = ["test.py", "tests"]

@@ -60,7 +60,21 @@ cwes = instance.get_cwe_from_summary(summary)
 print(cwes)  # Output: CWE-502
 ```
 Ensure the summary variable contains enough information to extract the CWE list.
- 
+
+## Parsing CVSS
+
+**Get CVSS vector and base score from a summary:**
+```bash
+summary = "..."
+cvss = instance.get_cvss_from_summary(summary)
+print(cvss.vector)        # CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+print(cvss.base_score)    # 7.5
+print(cvss.severity_label)# high
+```
+
+If the summary already contains an explicit CVSS vector it is extracted directly
+(regex) and the score is computed from it; otherwise the LLM infers the vector.
+
 ---
 
 ### LLM Configuration:

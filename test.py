@@ -15,6 +15,7 @@ from univers.versions import PypiVersion
 from agent import VulnerabilityAgent
 
 
+@pytest.mark.live
 @pytest.mark.parametrize(
     "summary, expected_purl, expected_version_ranges",
     [
@@ -62,6 +63,7 @@ def test_simple_vulnerability_summary_parser(
     assert version_ranges == expected_version_ranges
 
 
+@pytest.mark.live
 @pytest.mark.parametrize(
     "cpe, pkg_type, expected_purl",
     [
@@ -88,6 +90,7 @@ def test_vulnerability_cpe_parser_varied_ecosystems(cpe, pkg_type, expected_purl
     assert str(purl) == expected_purl
 
 
+@pytest.mark.live
 @pytest.mark.parametrize(
     "summary, expected_severity",
     [
@@ -116,6 +119,7 @@ def test_vulnerability_severity_parser(summary, expected_severity):
     assert str(severity) == expected_severity
 
 
+@pytest.mark.live
 @pytest.mark.parametrize(
     "summary, expected_cwe_list",
     [
@@ -131,3 +135,24 @@ def test_vulnerability_cwe_parser(summary, expected_cwe_list):
     agent = VulnerabilityAgent()
     cwe_list = agent.get_cwe_from_summary(summary)
     assert cwe_list == expected_cwe_list
+
+
+@pytest.mark.live
+@pytest.mark.parametrize(
+    "summary, expected_vector_prefix, expected_min_score",
+    [
+        (
+            "A flaw allows remote unauthenticated attackers to execute arbitrary "
+            "code over the network without user interaction. CVSS:3.1/"
+            "AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            9.0,
+        ),
+    ],
+)
+def test_vulnerability_cvss_parser(summary, expected_vector_prefix, expected_min_score):
+    agent = VulnerabilityAgent()
+    cvss = agent.get_cvss_from_summary(summary)
+    assert cvss is not None
+    assert cvss.vector == expected_vector_prefix
+    assert cvss.base_score >= expected_min_score

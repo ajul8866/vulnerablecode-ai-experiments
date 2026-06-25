@@ -6,3 +6,4 @@ pydantic-ai==1.6.0
 univers==31.1.0
 pytest==8.4.2
 cwe2==3.0.0
+cvss==3.0
