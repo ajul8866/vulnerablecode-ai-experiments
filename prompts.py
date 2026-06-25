@@ -147,6 +147,6 @@ requires CVSS 4.0 semantics.
 
 **Output Format (STRICT JSON):**
 ```json
-{{"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"}}
+{"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"}
 ```
 """
