@@ -33,3 +33,8 @@ def test_ignores_invalid_candidate_and_keeps_looking():
 def test_ignores_cvss2():
     # v2 vectors are not surfaced by the regex (require CVSS:3./4. prefix)
     assert extract_cvss_vector("AV:N/AC:L/Au:N/C:N/I:N/A:P") is None
+
+
+def test_ignores_cvss_3_0():
+    # only 3.1 and 4.0 are supported; 3.0 is not surfaced by the regex
+    assert extract_cvss_vector("CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N") is None

@@ -76,3 +76,23 @@ def test_raises_when_both_regex_and_llm_fail():
         parser.get_cvss(_SUMMARY_WITHOUT_VECTOR)
     # output_retries=1 means two model calls before UnexpectedModelBehavior
     assert parser.agent.calls == 2
+
+
+def test_get_cvss_translates_unexpected_model_behavior(monkeypatch):
+    import pytest
+    from pydantic_ai.exceptions import UnexpectedModelBehavior
+    from agent.parsers.base import BaseParser
+
+    parser = CVSSFromSummaryParser.__new__(CVSSFromSummaryParser)
+    parser._system_prompt = "sys"
+    parser.retry_policy = RetryPolicy(max_attempts=1)
+    parser.output_type = CVSSVectorRaw
+    parser.agent = _StubAgent(_VALID_V31)  # not actually called because _raw_run is patched
+
+    def boom(self, user_prompt):
+        raise UnexpectedModelBehavior("Exceeded maximum retries for output validation")
+
+    monkeypatch.setattr(BaseParser, "_raw_run", boom)
+
+    with pytest.raises(CVSSNotExtractableError):
+        parser.get_cvss(_SUMMARY_WITHOUT_VECTOR)

@@ -72,8 +72,6 @@ def _cvss_class_for(prefix: str):
 
 def _parse_cvss_or_raise(vector: str):
     """Construct the cvss parser object, re-raising any error as ValueError."""
-    from cvss import CVSS3, CVSS4
-
     stripped = vector.strip()
     prefix = stripped.split("/", 1)[0]
     klass = _cvss_class_for(prefix)

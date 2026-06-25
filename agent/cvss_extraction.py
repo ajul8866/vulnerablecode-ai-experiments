@@ -8,8 +8,10 @@
 import re
 from typing import Optional
 
-# Match CVSS:3.x or CVSS:4.0 vector strings. Slashes are required to be present.
-_CVSS_RE = re.compile(r"CVSS:(?:3\.[01]|4\.0)/[A-Za-z0-9:/_.\-]+")
+# Match CVSS:3.1 or CVSS:4.0 vector strings. Slashes are required to be present.
+# 3.0 is intentionally excluded: it is unsupported and would otherwise be silently
+# mislabeled as version 3.1 by CVSSVector.from_vector.
+_CVSS_RE = re.compile(r"CVSS:(?:3\.1|4\.0)/[A-Za-z0-9:/_.\-]+")
 
 # Hard cap on candidate length to avoid runaway matches.
 _MAX_CANDIDATE_LEN = 512
